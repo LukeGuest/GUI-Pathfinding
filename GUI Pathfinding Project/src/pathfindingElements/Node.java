@@ -21,15 +21,20 @@ public class Node extends JButton {
 		START_NODE,
 		END_NODE}
 	
-	JButton buttonElement;
-	Status nodeStatus;
+	private JButton buttonElement;
+	private Status nodeStatus;
 	
-	public Node() {
+	private boolean visited;
+	
+	private int row, column;
+	
+	public Node(int rowValue, int columnValue) {
 		super();
 		setBackground(Color.LIGHT_GRAY);
 		nodeStatus = Status.WALKABLE;
 		
-		
+		row = rowValue;
+		column = columnValue;
 	}
 	
 	public JButton getButton() {
@@ -42,5 +47,21 @@ public class Node extends JButton {
 	
 	public Status checkStatus() {
 		return nodeStatus;
+	}
+	
+	public boolean Visited() {
+		return visited;
+	}
+	
+	public void setVisited(boolean visitedValue) {
+		visited = visitedValue;
+	}
+	
+	public int getRow() {
+		return row;
+	}
+	
+	public int getColumn() {
+		return column;
 	}
 }

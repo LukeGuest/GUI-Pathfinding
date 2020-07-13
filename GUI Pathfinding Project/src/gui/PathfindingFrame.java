@@ -53,7 +53,7 @@ public class PathfindingFrame extends JFrame {
 		resetGrid.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				grid.resetGrid(GRID_SIZE);
+				grid.resetGrid();
 				System.out.println("Reset Grid");
 			}
 		});
@@ -75,14 +75,14 @@ public class PathfindingFrame extends JFrame {
 		breadthFirst.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				
+				grid.breadthFirstSearch();
 			}
 		});
 		
 		depthFirst.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				
+				//grid.depthFirstSearch();
 			}
 		});
 		
@@ -98,21 +98,21 @@ public class PathfindingFrame extends JFrame {
 		slowSpeed.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				
+				grid.setSearchSpeed(15);
 			}
 		});
 		
 		mediumSpeed.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				
+				grid.setSearchSpeed(10);
 			}
 		});
 		
 		highSpeed.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				
+				grid.setSearchSpeed(5);
 			}
 		});
 		

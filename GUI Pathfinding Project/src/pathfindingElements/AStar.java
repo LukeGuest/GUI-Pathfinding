@@ -4,14 +4,14 @@ import java.util.ArrayList;
 
 public class AStar {
 
-	private ArrayList<Grid> openList;
-	private ArrayList<Grid> closedList;
-	private ArrayList<Grid> barrierList;
+	private ArrayList<Node> openList;
+	private ArrayList<Node> closedList;
+	private ArrayList<Node> barrierList;
 	
 	public AStar() {
-		openList = new ArrayList<Grid>();
-		closedList = new ArrayList<Grid>();
-		barrierList = new ArrayList<Grid>();
+		openList = new ArrayList<Node>();
+		closedList = new ArrayList<Node>();
+		barrierList = new ArrayList<Node>();
 	}
 
 }
