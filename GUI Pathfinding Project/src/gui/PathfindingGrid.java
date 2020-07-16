@@ -47,6 +47,8 @@ public class PathfindingGrid {
 	
 	private int searchSpeed = 10;
 	
+	private boolean searchAlgoRunning;
+	
 	public PathfindingGrid() {
 
 	}
@@ -79,40 +81,45 @@ public class PathfindingGrid {
 					public void mousePressed(MouseEvent e) {
 						Node nodeClicked = (Node)e.getSource();
 						
-						if(SwingUtilities.isLeftMouseButton(e)) {
-							if(startNode == null && sKeyPressed) {
-								nodeClicked.setBackground(Color.green);
-								nodeClicked.setStatus(Status.START_NODE);
-								startNode = nodeClicked;
-							}
-							else if(endNode == null && dKeyPressed) {
-								nodeClicked.setBackground(Color.red);
-								nodeClicked.setStatus(Status.END_NODE);
-								endNode = nodeClicked;
-							}
-							else {
-								if(nodeClicked.checkStatus() != Status.START_NODE && nodeClicked.checkStatus() != Status.END_NODE) {
-									if(nodeClicked.checkStatus() == Status.WALL) {
-										nodeClicked.setStatus(Status.WALKABLE);
-										nodeClicked.setBackground(Color.LIGHT_GRAY);
+						//Only allow wall placement while no algorithm is running
+						if(!searchAlgoRunning) {
+							if(SwingUtilities.isLeftMouseButton(e)) {
+								if(startNode == null && sKeyPressed) {
+									nodeClicked.setBackground(Color.green);
+									nodeClicked.setStatus(Status.START_NODE);
+									startNode = nodeClicked;
+								}
+								else if(endNode == null && dKeyPressed) {
+									nodeClicked.setBackground(Color.red);
+									nodeClicked.setStatus(Status.END_NODE);
+									endNode = nodeClicked;
+								}
+								else {
+									if(nodeClicked.checkStatus() != Status.START_NODE && nodeClicked.checkStatus() != Status.END_NODE) {
+										if(nodeClicked.checkStatus() == Status.WALL) {
+											nodeClicked.setStatus(Status.WALKABLE);
+											nodeClicked.setBackground(Color.LIGHT_GRAY);
+										}
+										else {
+											nodeClicked.setBackground(Color.black);
+											nodeClicked.setStatus(Status.WALL);
+										}
+										
+										//APPEND BUTTON/NODE TO PATHFINDING WALLS LIST
 									}
-									else {
-										nodeClicked.setBackground(Color.black);
-										nodeClicked.setStatus(Status.WALL);
-									}
-									
-									//APPEND BUTTON/NODE TO PATHFINDING WALLS LIST
 								}
 							}
-						}
+						}					
 					}
 					
 					public void mouseEntered(MouseEvent e) {
-						if(SwingUtilities.isLeftMouseButton(e)) {
-							Node nodeClicked = (Node)e.getSource();
-							
-							nodeClicked.setBackground(Color.black);
-							nodeClicked.setStatus(Status.WALL);
+						if(!searchAlgoRunning) {
+							if(SwingUtilities.isLeftMouseButton(e)) {
+								Node nodeClicked = (Node)e.getSource();
+								
+								nodeClicked.setBackground(Color.black);
+								nodeClicked.setStatus(Status.WALL);
+							}
 						}
 					}
 				});
@@ -175,6 +182,8 @@ public class PathfindingGrid {
 	
 	public void breadthFirstSearch() {
 		Thread thread = new Thread(() -> {
+			searchAlgoRunning = true;
+			
 			//Storing all nodes to be 'visited'
 			Queue<Node> nodeQueue = new LinkedList<Node>();
 			
@@ -259,6 +268,8 @@ public class PathfindingGrid {
 				JOptionPane.showMessageDialog(PathfindingFrame.getFrames()[0], "No clear path to end node");
 			}
 			
+			//Reset boolean so walls can be added
+			searchAlgoRunning = false;
 		});
 		
 		thread.start();

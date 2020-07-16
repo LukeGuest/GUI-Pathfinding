@@ -13,6 +13,14 @@ import javax.swing.SwingUtilities;
 import gui.PathfindingFrame;
 import gui.PathfindingGrid;
 
+/**
+ * Node.java represents each individual unit
+ * on the pathfinding grid.
+ * It extends the JButton class, to handle the 
+ * visual aspect of the square.
+ * @author lukeg
+ *
+ */
 public class Node extends JButton {
 	
 	public enum Status {
@@ -28,13 +36,24 @@ public class Node extends JButton {
 	
 	private int row, column;
 	
+	/**
+	 * g - movement cost from starting point to a given node.
+	 * h - estimated cost to move from node to destination.
+	 * f - g + h.
+	 */
+	private double g,h,f;
+	
 	public Node(int rowValue, int columnValue) {
 		super();
 		setBackground(Color.LIGHT_GRAY);
-		nodeStatus = Status.WALKABLE;
+		this.nodeStatus = Status.WALKABLE;
 		
-		row = rowValue;
-		column = columnValue;
+		this.row = rowValue;
+		this.column = columnValue;
+		
+		this.g = 0;
+		this.h = 0;
+		
 	}
 	
 	public JButton getButton() {
@@ -64,4 +83,31 @@ public class Node extends JButton {
 	public int getColumn() {
 		return column;
 	}
+	
+	public void setG(double value) {
+		if(this.g != value) {
+			this.g = value;
+			setF(this.g, this.h);
+		}
+		
+	}
+	public double getG() {
+		return g;
+	}
+	
+	public void setH(double value) {
+		if(this.h != value) {
+			this.h = value;
+			setF(this.g, this.h);
+		}
+	}
+	
+	public double getF() {
+		return f;
+	}
+	
+	private void setF(double g, double h) {
+		f = g + h;
+	}
+	
 }
