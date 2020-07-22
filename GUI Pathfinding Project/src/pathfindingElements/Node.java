@@ -87,7 +87,7 @@ public class Node extends JButton {
 	public void setG(double value) {
 		if(this.g != value) {
 			this.g = value;
-			setF(this.g, this.h);
+			//setF(this.g, this.h);
 		}
 		
 	}
@@ -98,8 +98,12 @@ public class Node extends JButton {
 	public void setH(double value) {
 		if(this.h != value) {
 			this.h = value;
-			setF(this.g, this.h);
+			//setF(this.g, this.h);
 		}
+	}
+	
+	public double getH() {
+		return h;
 	}
 	
 	public double getF() {

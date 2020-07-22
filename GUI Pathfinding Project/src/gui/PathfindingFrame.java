@@ -17,6 +17,7 @@ public class PathfindingFrame extends JFrame {
 	private JPanel panel;
 	
 	private PathfindingGrid grid;
+	private AStar aStar;
 	
 	private static final int WINDOW_WIDTH = 1080;
 	private static final int WINDOW_HEIGHT = 920;
@@ -38,6 +39,7 @@ public class PathfindingFrame extends JFrame {
 		frame.add(panel);
 		
 		grid = new PathfindingGrid(GRID_SIZE, panel);
+		aStar = new AStar(grid.getGridObject(), true);
 		
 		jMenuSetup();
 		
@@ -61,14 +63,14 @@ public class PathfindingFrame extends JFrame {
 		fileOptions.add(resetGrid);
 		
 		JMenu pathfindingOptions = new JMenu("Pathfinding Options");
-		JMenuItem aStar = new JMenuItem("A* Pathfinding");
+		JMenuItem aStarOption = new JMenuItem("A* Pathfinding");
 		JMenuItem breadthFirst = new JMenuItem("Breadth First Search");
 		JMenuItem depthFirst = new JMenuItem("Depth First Search");
 		
-		aStar.addActionListener(new ActionListener(){
+		aStarOption.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				
+				aStar.findPath(grid.getStartNode(), grid.getEndNode());
 			}
 		});
 		
@@ -86,7 +88,7 @@ public class PathfindingFrame extends JFrame {
 			}
 		});
 		
-		pathfindingOptions.add(aStar);
+		pathfindingOptions.add(aStarOption);
 		pathfindingOptions.add(breadthFirst);
 		pathfindingOptions.add(depthFirst);
 		

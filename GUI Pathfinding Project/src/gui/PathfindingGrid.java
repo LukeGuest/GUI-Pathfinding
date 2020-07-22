@@ -295,4 +295,14 @@ public class PathfindingGrid {
 			}
 		}
 	}
+	
+	public Node[][] getGridObject(){
+		return grid;
+	}
+	public Node getStartNode() {
+		return startNode;
+	}
+	public Node getEndNode() {
+		return endNode;
+	}
 }
