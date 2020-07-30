@@ -48,31 +48,34 @@ public class AStar {
 						currentNode = openList.get(i);
 					}
 				}
+				openList.remove(currentNode);
+				
+				//System.out.println(currentNode.checkStatus());
 				
 				//Conditions depending on node type
 				if(currentNode.checkStatus() == Status.END_NODE) {
-					System.out.println("END NODE FOUND");
+					currentNode.setBackground(Color.red);
 					break;
 				}
-				else if(currentNode.checkStatus() == Status.WALL) {
-					System.out.println("WALL NODE FOUND");
-					continue;
-				}
 				else {
-					currentNode.setBackground(Color.blue);
+					if(currentNode.checkStatus() != Status.END_NODE) {
+						currentNode.setBackground(Color.blue);
+						currentNode.setVisited(true);
+					}
+					
 				}
 				
-				openList.remove(currentNode);
+				if(currentNode.checkStatus() != Status.WALL || currentNode.checkStatus() != Status.END_NODE) {
+					//Find neighbours of currentNode
+					addNeighbours(currentNode);
+				}
 				
 				try {
-					Thread.sleep(30);
+					Thread.sleep(10);
 				}
 				catch(InterruptedException e) {
 					
 				}
-				
-				//Find neighbours of currentNode
-				addNeighbours(currentNode);
 				
 				closedList.add(currentNode);
 			}
@@ -86,11 +89,43 @@ public class AStar {
 	 * open list.
 	 */
 	private void addNeighbours(Node current) {
+		boolean skipSouthEast = false;
+		boolean skipNorthEast = false;
+		boolean skipNorthWest = false;
+		boolean skipSouthWest = false;
+		
+		if(grid[current.getRow()][current.getColumn() + 1].checkStatus() == Status.WALL && grid[current.getRow() + 1][current.getColumn()].checkStatus() == Status.WALL) {
+			skipSouthEast = true;
+		}
+		if(grid[current.getRow()][current.getColumn() - 1].checkStatus() == Status.WALL && grid[current.getRow() + 1][current.getColumn()].checkStatus() == Status.WALL) {
+			skipNorthEast = true;
+		}
+		if(grid[current.getRow()][current.getColumn() - 1].checkStatus() == Status.WALL && grid[current.getRow() - 1][current.getColumn()].checkStatus() == Status.WALL) {
+			skipNorthWest = true;
+		}
+		if(grid[current.getRow()][current.getColumn() + 1].checkStatus() == Status.WALL && grid[current.getRow() - 1][current.getColumn()].checkStatus() == Status.WALL) {
+			skipSouthEast = true;
+		}
+		
 		for(int x = -1; x <= 1; x++) {
 			for(int y = -1; y <= 1; y++) {
 				/*if(!useDiag && i != 0 && j != 0) {
 					continue;
 				}*/
+				
+				if(skipSouthEast &&  (x == 1 && y == 1)){
+					continue;
+				}
+				if(skipNorthEast && (x == 1 && y == -1)) {
+					continue;
+				}
+				if(skipNorthWest && (x == -1 && y == -1)) {
+					continue;
+				}
+				if(skipSouthWest && (x == -1 && y == 1)) {
+					continue;
+				}
+				
 				int row = current.getRow();
 				int column = current.getColumn();
 			
@@ -103,13 +138,14 @@ public class AStar {
 				if(row != 0 && column != 0
 						&& row + x >= 0 && row + x < grid.length
 						&& column + y >= 0	&& column + y < grid.length
-						&& grid[row + x][column + y].checkStatus() == Status.WALKABLE
+						&& (grid[row + x][column + y].checkStatus() == Status.WALKABLE || grid[row + x][column + y].checkStatus() == Status.END_NODE)
 						&& !grid[row + x][column + y].Visited()) {
-					Node successor = grid[current.getRow() + x][current.getColumn() + y];
+					
+					Node successor = grid[row + x][column + y];
 					
 					successor.setG(current.getG() + 1);
 					successor.setH(distance(successor, endNode));
-					System.out.println(current.getG());
+
 					double updatedFValue = successor.getG() + successor.getH();
 					
 					/**
@@ -120,25 +156,29 @@ public class AStar {
 						
 						int index = openList.indexOf(successor);
 						if(updatedFValue > openList.get(index).getF()) {
-							System.out.println("F Value greater than current");
+							successor.setVisited(true);
 							continue;
 						}
 						
 					}
-					if(closedList.contains(successor)) {
+					else if(closedList.contains(successor)) {
 						if(closedList.get(closedList.indexOf(successor)).getF() < updatedFValue) {
-							System.out.println("F Value greater than current in closed");
 							continue;
 						}
 					}
 					openList.add(successor);
+					if(successor.checkStatus() != Status.WALL) {
+						successor.setBackground(Color.green);
+					}
+					successor.setVisited(true);
 				}
 			}
 		}
 	}
 	
 	private double distance(Node currentNode, Node endNode) {
-		return Math.max(Math.abs(currentNode.getX() - endNode.getX()), Math.abs(currentNode.getY() - endNode.getY()));
+		//return Math.max(Math.abs(currentNode.getX() - endNode.getX()), Math.abs(currentNode.getY() - endNode.getY()));
+		return Math.hypot(currentNode.getX() - endNode.getX(), currentNode.getY() - endNode.getY());
 	}
 
 }
