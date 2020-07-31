@@ -62,7 +62,7 @@ public class PathfindingFrame extends JFrame {
 		
 		fileOptions.add(resetGrid);
 		
-		JMenu pathfindingOptions = new JMenu("Pathfinding Options");
+		JMenu pathfindingOptions = new JMenu("Pathfinding Options");		
 		JMenuItem aStarOption = new JMenuItem("A* Pathfinding");
 		JMenuItem breadthFirst = new JMenuItem("Breadth First Search");
 		JMenuItem depthFirst = new JMenuItem("Depth First Search");

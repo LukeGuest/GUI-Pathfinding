@@ -12,11 +12,7 @@ public class AStar {
 	private ArrayList<Node> pathList;
 	
 	private Node[][] grid;
-	
-	private Node startNode;
 	private Node endNode;
-	
-	//private Node currentNode;
 	
 	private boolean useDiag;
 	
@@ -33,10 +29,12 @@ public class AStar {
 	
 	public void findPath(Node startPos, Node endPos) {
 		Thread thread = new Thread(() -> {
+			openList.clear();
+			closedList.clear();
+			pathList.clear();
 			
-			this.startNode = startPos;
 			this.endNode = endPos;
-			//closedList.add(startPos);
+			
 			openList.add(startPos);
 			
 			while(!openList.isEmpty()) {
@@ -50,15 +48,13 @@ public class AStar {
 				}
 				openList.remove(currentNode);
 				
-				//System.out.println(currentNode.checkStatus());
-				
 				//Conditions depending on node type
 				if(currentNode.checkStatus() == Status.END_NODE) {
 					currentNode.setBackground(Color.red);
 					break;
 				}
 				else {
-					if(currentNode.checkStatus() != Status.END_NODE) {
+					if(currentNode.checkStatus() != Status.END_NODE && currentNode.checkStatus() != Status.START_NODE) {
 						currentNode.setBackground(Color.blue);
 						currentNode.setVisited(true);
 					}
@@ -89,12 +85,20 @@ public class AStar {
 	 * open list.
 	 */
 	private void addNeighbours(Node current) {
+		int row = current.getRow();
+		int column = current.getColumn();
+		
 		boolean skipSouthEast = false;
 		boolean skipNorthEast = false;
 		boolean skipNorthWest = false;
 		boolean skipSouthWest = false;
 		
-		if(grid[current.getRow()][current.getColumn() + 1].checkStatus() == Status.WALL && grid[current.getRow() + 1][current.getColumn()].checkStatus() == Status.WALL) {
+		skipSouthEast = checkDiag(current, 1, 1);
+		skipNorthEast = checkDiag(current, 1, -1);
+		skipNorthWest = checkDiag(current, -1, -1);
+		skipSouthWest = checkDiag(current, -1, 1);
+		
+		/*if(grid[current.getRow()][current.getColumn() + 1].checkStatus() == Status.WALL && grid[current.getRow() + 1][current.getColumn()].checkStatus() == Status.WALL) {
 			skipSouthEast = true;
 		}
 		if(grid[current.getRow()][current.getColumn() - 1].checkStatus() == Status.WALL && grid[current.getRow() + 1][current.getColumn()].checkStatus() == Status.WALL) {
@@ -105,7 +109,7 @@ public class AStar {
 		}
 		if(grid[current.getRow()][current.getColumn() + 1].checkStatus() == Status.WALL && grid[current.getRow() - 1][current.getColumn()].checkStatus() == Status.WALL) {
 			skipSouthEast = true;
-		}
+		}*/
 		
 		for(int x = -1; x <= 1; x++) {
 			for(int y = -1; y <= 1; y++) {
@@ -125,18 +129,14 @@ public class AStar {
 				if(skipSouthWest && (x == -1 && y == 1)) {
 					continue;
 				}
-				
-				int row = current.getRow();
-				int column = current.getColumn();
-			
+
 				/*
 				 * if node is not 'current'
 				 * if node is within boundaries of grid
 				 * if node is 'walkable'
 				 * if node not already checked
 				 */
-				if(row != 0 && column != 0
-						&& row + x >= 0 && row + x < grid.length
+				if(row + x >= 0 && row + x < grid.length
 						&& column + y >= 0	&& column + y < grid.length
 						&& (grid[row + x][column + y].checkStatus() == Status.WALKABLE || grid[row + x][column + y].checkStatus() == Status.END_NODE)
 						&& !grid[row + x][column + y].Visited()) {
@@ -177,8 +177,18 @@ public class AStar {
 	}
 	
 	private double distance(Node currentNode, Node endNode) {
-		//return Math.max(Math.abs(currentNode.getX() - endNode.getX()), Math.abs(currentNode.getY() - endNode.getY()));
 		return Math.hypot(currentNode.getX() - endNode.getX(), currentNode.getY() - endNode.getY());
+	}
+	
+	private boolean checkDiag(Node current, int rowOffset, int columnOffset) {
+		if(current.getRow() + rowOffset < 0 || current.getColumn() + columnOffset < 0 || current.getRow() >= grid.length || current.getColumn() + columnOffset >= grid.length) {
+			return false;
+		}
+		if(grid[current.getRow()][current.getColumn() + columnOffset].checkStatus() == Status.WALL && grid[current.getRow() + rowOffset][current.getColumn()].checkStatus() == Status.WALL) {
+			return true;
+		}
+		
+		return false;
 	}
 
 }
