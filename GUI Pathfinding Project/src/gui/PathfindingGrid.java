@@ -172,6 +172,7 @@ public class PathfindingGrid {
 				grid[i][j].setBackground(Color.LIGHT_GRAY);
 				grid[i][j].setStatus(Status.WALKABLE);
 				grid[i][j].setVisited(false);
+				grid[i][j].setParentNode(null);
 			}
 		}
 	}

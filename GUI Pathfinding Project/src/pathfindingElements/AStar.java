@@ -3,6 +3,9 @@ package pathfindingElements;
 import java.awt.Color;
 import java.util.ArrayList;
 
+import javax.swing.JOptionPane;
+
+import gui.PathfindingFrame;
 import pathfindingElements.Node.Status;
 
 public class AStar {
@@ -15,7 +18,7 @@ public class AStar {
 	private Node endNode;
 	
 	private boolean useDiag;
-	
+	private boolean pathFound;
 	
 	public AStar(Node[][] grid, boolean useDiag) {
 		openList = new ArrayList<Node>();
@@ -29,6 +32,8 @@ public class AStar {
 	
 	public void findPath(Node startPos, Node endPos) {
 		Thread thread = new Thread(() -> {
+			pathFound = false;
+			
 			openList.clear();
 			closedList.clear();
 			pathList.clear();
@@ -46,23 +51,24 @@ public class AStar {
 						currentNode = openList.get(i);
 					}
 				}
+				
 				openList.remove(currentNode);
+				closedList.add(currentNode);
 				
 				//Conditions depending on node type
 				if(currentNode.checkStatus() == Status.END_NODE) {
 					currentNode.setBackground(Color.red);
+					pathFound = true;
 					break;
 				}
-				else {
-					if(currentNode.checkStatus() != Status.END_NODE && currentNode.checkStatus() != Status.START_NODE) {
-						currentNode.setBackground(Color.blue);
+				else if(currentNode.checkStatus() != Status.END_NODE && currentNode.checkStatus() != Status.START_NODE){					
+					currentNode.setBackground(Color.pink.darker());
 						currentNode.setVisited(true);
-					}
-					
 				}
 				
+				//Find neighbours of currentNode
 				if(currentNode.checkStatus() != Status.WALL || currentNode.checkStatus() != Status.END_NODE) {
-					//Find neighbours of currentNode
+					
 					addNeighbours(currentNode);
 				}
 				
@@ -73,8 +79,19 @@ public class AStar {
 					
 				}
 				
-				closedList.add(currentNode);
+				
 			}
+			
+			if(pathFound) {
+				joinPath();
+				for(int i = 0; i < pathList.size(); i++) {
+					pathList.get(i).setBackground(Color.blue);
+				}
+			}
+			else {
+				JOptionPane.showMessageDialog(PathfindingFrame.getFrames()[0], "No Path found");
+			}
+			
 		});
 		
 		thread.start();
@@ -97,25 +114,9 @@ public class AStar {
 		skipNorthEast = checkDiag(current, 1, -1);
 		skipNorthWest = checkDiag(current, -1, -1);
 		skipSouthWest = checkDiag(current, -1, 1);
-		
-		/*if(grid[current.getRow()][current.getColumn() + 1].checkStatus() == Status.WALL && grid[current.getRow() + 1][current.getColumn()].checkStatus() == Status.WALL) {
-			skipSouthEast = true;
-		}
-		if(grid[current.getRow()][current.getColumn() - 1].checkStatus() == Status.WALL && grid[current.getRow() + 1][current.getColumn()].checkStatus() == Status.WALL) {
-			skipNorthEast = true;
-		}
-		if(grid[current.getRow()][current.getColumn() - 1].checkStatus() == Status.WALL && grid[current.getRow() - 1][current.getColumn()].checkStatus() == Status.WALL) {
-			skipNorthWest = true;
-		}
-		if(grid[current.getRow()][current.getColumn() + 1].checkStatus() == Status.WALL && grid[current.getRow() - 1][current.getColumn()].checkStatus() == Status.WALL) {
-			skipSouthEast = true;
-		}*/
-		
+
 		for(int x = -1; x <= 1; x++) {
 			for(int y = -1; y <= 1; y++) {
-				/*if(!useDiag && i != 0 && j != 0) {
-					continue;
-				}*/
 				
 				if(skipSouthEast &&  (x == 1 && y == 1)){
 					continue;
@@ -145,6 +146,8 @@ public class AStar {
 					
 					successor.setG(current.getG() + 1);
 					successor.setH(distance(successor, endNode));
+					
+					successor.setParentNode(current);
 
 					double updatedFValue = successor.getG() + successor.getH();
 					
@@ -168,7 +171,7 @@ public class AStar {
 					}
 					openList.add(successor);
 					if(successor.checkStatus() != Status.WALL) {
-						successor.setBackground(Color.green);
+						successor.setBackground(Color.green.darker());
 					}
 					successor.setVisited(true);
 				}
@@ -190,5 +193,21 @@ public class AStar {
 		
 		return false;
 	}
-
+	
+	/**
+	 * 1. set parent to endNode.parent()
+	 * 2. while parent != start
+	 * 		3. Add parent to pathList
+	 * 		4. for each in closed
+	 * 			5. current = i
+	 * 			6. 
+	 */
+	private void joinPath() {
+		Node currentParent = endNode.getParentNode();
+		
+		while(currentParent != null) {
+			pathList.add(currentParent);
+			currentParent = currentParent.getParentNode();
+		}
+	}	
 }

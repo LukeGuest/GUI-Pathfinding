@@ -37,6 +37,11 @@ public class Node extends JButton {
 	private int row, column;
 	
 	/**
+	 * Used to find node previously 'attached' to when backtracking to find shortest path.
+	 */
+	private Node parentNode = null;
+	
+	/**
 	 * g - movement cost from starting point to a given node.
 	 * h - estimated cost to move from node to destination.
 	 * f - g + h.
@@ -108,6 +113,14 @@ public class Node extends JButton {
 	
 	public double getF() {
 		return f;
+	}
+	
+	public Node getParentNode() {
+		return parentNode;
+	}
+	
+	public void setParentNode(Node parentNode) {
+		this.parentNode = parentNode;
 	}
 	
 	private void setF(double g, double h) {
