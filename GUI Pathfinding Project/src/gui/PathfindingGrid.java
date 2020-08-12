@@ -48,10 +48,6 @@ public class PathfindingGrid {
 	private int searchSpeed = 10;
 	
 	private boolean searchAlgoRunning;
-	
-	public PathfindingGrid() {
-
-	}
 
 	/**
 	 * Constructor taking size as an element
@@ -76,13 +72,14 @@ public class PathfindingGrid {
 				
 				keyBindSetup(node);
 				
+				//Placing different node types on the grid
 				grid[i][j].addMouseListener(new MouseAdapter() {
 					@Override
 					public void mousePressed(MouseEvent e) {
 						Node nodeClicked = (Node)e.getSource();
 						
 						//Only allow wall placement while no algorithm is running
-						if(!searchAlgoRunning) {
+						if(!searchAlgoRunning && !PathfindingFrame.aStarObj().algoRunningCheck()) {
 							if(SwingUtilities.isLeftMouseButton(e)) {
 								if(startNode == null && sKeyPressed) {
 									nodeClicked.setBackground(Color.green);
@@ -104,8 +101,6 @@ public class PathfindingGrid {
 											nodeClicked.setBackground(Color.black);
 											nodeClicked.setStatus(Status.WALL);
 										}
-										
-										//APPEND BUTTON/NODE TO PATHFINDING WALLS LIST
 									}
 								}
 							}
@@ -113,7 +108,7 @@ public class PathfindingGrid {
 					}
 					
 					public void mouseEntered(MouseEvent e) {
-						if(!searchAlgoRunning) {
+						if(!searchAlgoRunning && !PathfindingFrame.aStarObj().algoRunningCheck()) {
 							if(SwingUtilities.isLeftMouseButton(e)) {
 								Node nodeClicked = (Node)e.getSource();
 								
@@ -160,6 +155,9 @@ public class PathfindingGrid {
 		node.getActionMap().put("D", dKeyAction);
 	}
 	
+	/**
+	 * Resets each section of the node value when called.
+	 */
 	public void resetGrid() {
 		startNode = null;
 		endNode = null;
@@ -173,6 +171,7 @@ public class PathfindingGrid {
 				grid[i][j].setStatus(Status.WALKABLE);
 				grid[i][j].setVisited(false);
 				grid[i][j].setParentNode(null);
+				grid[i][j].resetAStarValues();						
 			}
 		}
 	}
@@ -189,21 +188,9 @@ public class PathfindingGrid {
 			Queue<Node> nodeQueue = new LinkedList<Node>();
 			
 			//Add starting position to queue if not null
-			if(startNode != null) {
-				nodeQueue.add(startNode);
-			}
-			else {
-				JOptionPane.showMessageDialog(PathfindingFrame.getFrames()[0], "Start Node has not been set.");
-			}
-			
+			nodeQueue.add(startNode);
 			
 			while(nodeQueue.size() != 0) {
-				//If no end node set, break the loop before it begins
-				if(endNode == null) {
-					JOptionPane.showMessageDialog(PathfindingFrame.getFrames()[0], "End Node has not been set.");
-					break;
-				}
-				
 				//Get node from front of queue
 				Node currentNode = nodeQueue.remove();
 				
@@ -268,8 +255,6 @@ public class PathfindingGrid {
 				gridColourChange(false);
 				JOptionPane.showMessageDialog(PathfindingFrame.getFrames()[0], "No clear path to end node");
 			}
-			
-			//Reset boolean so walls can be added
 			searchAlgoRunning = false;
 		});
 		
@@ -306,4 +291,13 @@ public class PathfindingGrid {
 	public Node getEndNode() {
 		return endNode;
 	}
+	
+	public boolean algoRunningCheck() {
+		return searchAlgoRunning;
+	}
+	
+	public void resetAlgo() {
+		searchAlgoRunning = false;
+	}
+	
 }

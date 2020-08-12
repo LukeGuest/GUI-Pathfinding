@@ -17,7 +17,7 @@ public class PathfindingFrame extends JFrame {
 	private JPanel panel;
 	
 	private PathfindingGrid grid;
-	private AStar aStar;
+	private static AStar aStar;
 	
 	private static final int WINDOW_WIDTH = 1080;
 	private static final int WINDOW_HEIGHT = 920;
@@ -39,58 +39,92 @@ public class PathfindingFrame extends JFrame {
 		frame.add(panel);
 		
 		grid = new PathfindingGrid(GRID_SIZE, panel);
-		aStar = new AStar(grid.getGridObject(), true);
+		aStar = new AStar(grid.getGridObject());
 		
 		jMenuSetup();
 		
 		frame.setVisible(true);
 	}	
 	
+	/**
+	 * All the JMenu setup - each tab and options.
+	 */
 	private void jMenuSetup() {
 		JMenuBar menu = new JMenuBar();
-		
-		JMenu fileOptions = new JMenu("File");
-		JMenuItem resetGrid = new JMenuItem("Reset Grid");
-		
-		resetGrid.addActionListener(new ActionListener(){
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				grid.resetGrid();
-				System.out.println("Reset Grid");
-			}
-		});
-		
-		fileOptions.add(resetGrid);
 		
 		JMenu pathfindingOptions = new JMenu("Pathfinding Options");		
 		JMenuItem aStarOption = new JMenuItem("A* Pathfinding");
 		JMenuItem breadthFirst = new JMenuItem("Breadth First Search");
-		JMenuItem depthFirst = new JMenuItem("Depth First Search");
 		
 		aStarOption.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				aStar.findPath(grid.getStartNode(), grid.getEndNode());
+				if(!grid.algoRunningCheck() && !aStar.algoRunningCheck()) {
+					if(grid.getStartNode() == null || grid.getEndNode() == null) {
+						JOptionPane.showMessageDialog(PathfindingFrame.getFrames()[0], "Start/End Node has not been set.");
+					}
+					else {
+						aStar.findPath(grid.getStartNode(), grid.getEndNode());
+						breadthFirst.setEnabled(false);
+						aStarOption.setEnabled(false);
+					}
+				}
 			}
 		});
 		
 		breadthFirst.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				grid.breadthFirstSearch();
-			}
-		});
-		
-		depthFirst.addActionListener(new ActionListener(){
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				//grid.depthFirstSearch();
+				if(!grid.algoRunningCheck() && !aStar.algoRunningCheck()) {
+					if(grid.getStartNode() == null || grid.getEndNode() == null) {
+						JOptionPane.showMessageDialog(PathfindingFrame.getFrames()[0], "Start/End Node has not been set.");
+					}
+					else {
+						grid.breadthFirstSearch();
+						breadthFirst.setEnabled(false);
+						aStarOption.setEnabled(false);
+					}
+					
+				}
 			}
 		});
 		
 		pathfindingOptions.add(aStarOption);
 		pathfindingOptions.add(breadthFirst);
-		pathfindingOptions.add(depthFirst);
+		
+		JMenu fileOptions = new JMenu("File");
+		
+		JMenuItem about = new JMenuItem("About");
+		JMenuItem resetGrid = new JMenuItem("Reset Grid");
+		
+		about.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JOptionPane.showMessageDialog(PathfindingFrame.getFrames()[0], 
+						"Hotkeys: \n"
+						+ "S: Next left click places start node.\n"
+						+ "E: Next left click places end node.\n"
+						+ "Left Click: Invert current node status (Wall or Open).\n\n"
+						+ "The algorithm speed can be adjusted in the 'Speed Options'. \n");
+			}
+		});
+		
+		resetGrid.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(!grid.algoRunningCheck() && !aStar.algoRunningCheck()) {
+					grid.resetGrid();
+					breadthFirst.setEnabled(true);
+					aStarOption.setEnabled(true);
+				}
+				else {
+					JOptionPane.showMessageDialog(PathfindingFrame.getFrames()[0], "Search algorithm currently being ran!");
+				}
+			}
+		});	
+		
+		fileOptions.add(about);
+		fileOptions.add(resetGrid);
 		
 		JMenu speedOptions = new JMenu("Speed Options");
 		JMenuItem slowSpeed = new JMenuItem("Slow Speed");
@@ -101,6 +135,7 @@ public class PathfindingFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				grid.setSearchSpeed(15);
+				aStar.setSearchSpeed(15);
 			}
 		});
 		
@@ -108,6 +143,7 @@ public class PathfindingFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				grid.setSearchSpeed(10);
+				aStar.setSearchSpeed(10);
 			}
 		});
 		
@@ -115,20 +151,22 @@ public class PathfindingFrame extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				grid.setSearchSpeed(5);
+				aStar.setSearchSpeed(5);
 			}
 		});
 		
 		speedOptions.add(slowSpeed);
 		speedOptions.add(mediumSpeed);
-		speedOptions.add(highSpeed);
-		
-		JMenu about = new JMenu("About");
+		speedOptions.add(highSpeed);	
 		
 		menu.add(fileOptions);
 		menu.add(pathfindingOptions);
 		menu.add(speedOptions);
-		menu.add(about);
 		
 		frame.setJMenuBar(menu);
+	}
+	
+	public static AStar aStarObj() {
+		return aStar;
 	}
 }

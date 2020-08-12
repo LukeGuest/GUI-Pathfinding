@@ -127,4 +127,10 @@ public class Node extends JButton {
 		f = g + h;
 	}
 	
+	public void resetAStarValues() {
+		h = 0;
+		g = 0;
+		f = 0;
+	}
+	
 }

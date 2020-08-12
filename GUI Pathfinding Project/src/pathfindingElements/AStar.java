@@ -17,21 +17,23 @@ public class AStar {
 	private Node[][] grid;
 	private Node endNode;
 	
-	private boolean useDiag;
 	private boolean pathFound;
 	
-	public AStar(Node[][] grid, boolean useDiag) {
+	private boolean isRunning;
+	
+	private int searchSpeed = 10;
+	
+	public AStar(Node[][] grid) {
 		openList = new ArrayList<Node>();
 		closedList = new ArrayList<Node>();
 		pathList = new ArrayList<Node>();
 		
 		this.grid = grid;
-		
-		this.useDiag = useDiag;
 	}
 	
 	public void findPath(Node startPos, Node endPos) {
 		Thread thread = new Thread(() -> {
+			isRunning = true;
 			pathFound = false;
 			
 			openList.clear();
@@ -73,33 +75,36 @@ public class AStar {
 				}
 				
 				try {
-					Thread.sleep(10);
+					Thread.sleep(searchSpeed);
 				}
 				catch(InterruptedException e) {
 					
-				}
-				
-				
+				}			
 			}
 			
+			//Once pathfinding has finished.....
 			if(pathFound) {
 				joinPath();
 				for(int i = 0; i < pathList.size(); i++) {
-					pathList.get(i).setBackground(Color.blue);
+					if(pathList.get(i).checkStatus() != Status.START_NODE) {
+						pathList.get(i).setBackground(Color.blue);
+					}
 				}
+				JOptionPane.showMessageDialog(PathfindingFrame.getFrames()[0], "Path found");
 			}
 			else {
 				JOptionPane.showMessageDialog(PathfindingFrame.getFrames()[0], "No Path found");
 			}
-			
+			isRunning = false;
 		});
 		
 		thread.start();
 	}
 	
 	/**
-	 * Add neighbour nodes to 
-	 * open list.
+	 * Add neighbour nodes to open list.
+	 * Check whether to skip neighbours 
+	 * if other side of wall.
 	 */
 	private void addNeighbours(Node current) {
 		int row = current.getRow();
@@ -145,10 +150,10 @@ public class AStar {
 					Node successor = grid[row + x][column + y];
 					
 					successor.setG(current.getG() + 1);
-					successor.setH(distance(successor, endNode));
+					successor.setH(diagDistance(successor, endNode));
 					
 					successor.setParentNode(current);
-
+					
 					double updatedFValue = successor.getG() + successor.getH();
 					
 					/**
@@ -170,7 +175,7 @@ public class AStar {
 						}
 					}
 					openList.add(successor);
-					if(successor.checkStatus() != Status.WALL) {
+					if(successor.checkStatus() != Status.WALL && successor.checkStatus() != Status.START_NODE) {
 						successor.setBackground(Color.green.darker());
 					}
 					successor.setVisited(true);
@@ -179,12 +184,21 @@ public class AStar {
 		}
 	}
 	
-	private double distance(Node currentNode, Node endNode) {
-		return Math.hypot(currentNode.getX() - endNode.getX(), currentNode.getY() - endNode.getY());
+	//Evaluate distance between two nodes
+	private double diagDistance(Node currentNode, Node endNode) {
+		return Math.hypot(currentNode.getRow() - endNode.getRow(), currentNode.getColumn() - endNode.getColumn());
 	}
 	
+	/**
+	 * Checks to see if need to skip neighbours
+	 * by checking if current node is next to a wall.
+	 * @param current
+	 * @param rowOffset
+	 * @param columnOffset
+	 * @return
+	 */
 	private boolean checkDiag(Node current, int rowOffset, int columnOffset) {
-		if(current.getRow() + rowOffset < 0 || current.getColumn() + columnOffset < 0 || current.getRow() >= grid.length || current.getColumn() + columnOffset >= grid.length) {
+		if(current.getRow() + rowOffset < 0 || current.getColumn() + columnOffset < 0 || current.getRow() + rowOffset >= grid.length || current.getColumn() + columnOffset >= grid.length) {
 			return false;
 		}
 		if(grid[current.getRow()][current.getColumn() + columnOffset].checkStatus() == Status.WALL && grid[current.getRow() + rowOffset][current.getColumn()].checkStatus() == Status.WALL) {
@@ -195,12 +209,8 @@ public class AStar {
 	}
 	
 	/**
-	 * 1. set parent to endNode.parent()
-	 * 2. while parent != start
-	 * 		3. Add parent to pathList
-	 * 		4. for each in closed
-	 * 			5. current = i
-	 * 			6. 
+	 * Backtrack to get final path.
+	 * Add each node to pathList.
 	 */
 	private void joinPath() {
 		Node currentParent = endNode.getParentNode();
@@ -210,4 +220,16 @@ public class AStar {
 			currentParent = currentParent.getParentNode();
 		}
 	}	
+	
+	public void setSearchSpeed(int speed) {
+		searchSpeed = speed;
+	}
+	
+	public boolean algoRunningCheck() {
+		return isRunning;
+	}
+	
+	public void resetAlgo() {
+		isRunning = false;
+	}
 }
